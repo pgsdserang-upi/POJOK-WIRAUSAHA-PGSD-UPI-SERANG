@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pojok Wirausaha Mahasiswa — PGSD UPI Kampus Serang</title>
+<meta name="description" content="Etalase digital produk dan jasa karya mahasiswa PGSD UPI Kampus Serang. Temukan, dukung, dan belanja produk kreatif mahasiswa.">
+<meta name="theme-color" content="#C42A45">
+<meta name="author" content="PGSD UPI Kampus Serang">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Pojok Wirausaha Mahasiswa — PGSD UPI Kampus Serang">
+<meta property="og:description" content="Karya Mahasiswa • Belanja Mahasiswa • Tumbuh Bersama">
+<meta property="og:image" content="assets/images/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icons/logo.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#konten-utama">Lompat ke konten utama</a>
+
+<!-- ============ SPRITE IKON (Lucide style, inline agar ringan & tanpa dependensi) ============ -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true" focusable="false">
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></symbol>
+  <symbol id="i-whatsapp" viewBox="0 0 24 24" fill="currentColor"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.25-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.07-.13-.27-.2-.57-.35M12.04 21.5h-.01a9.4 9.4 0 0 1-4.79-1.31l-.34-.2-3.56.93.95-3.47-.22-.36a9.38 9.38 0 0 1-1.44-5.01c0-5.18 4.22-9.4 9.42-9.4a9.35 9.35 0 0 1 6.65 2.76 9.32 9.32 0 0 1 2.75 6.65c0 5.18-4.22 9.4-9.41 9.4M20.4 3.6A11.28 11.28 0 0 0 12.04 0C5.8 0 .73 5.07.73 11.3c0 1.99.52 3.94 1.51 5.65L.63 24l7.2-1.89a11.28 11.28 0 0 0 5.4 1.38h.01c6.23 0 11.3-5.07 11.31-11.3a11.24 11.24 0 0 0-3.31-8"/></symbol>
+  <symbol id="i-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></symbol>
+  <symbol id="i-map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8L4 10.7l6.1 1.9L12 18.4l1.9-5.8 6.1-1.9-6.1-1.9z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 1.6-3.2A2 2 0 0 1 5.4 3h13.2a2 2 0 0 1 1.8 1.1L22 7"/><path d="M4 7v13a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V7"/><path d="M2 7a3 3 0 0 0 5 2 3 3 0 0 0 5 0 3 3 0 0 0 5 0 3 3 0 0 0 5-2"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="m22 12.5-9.17 4.16a2 2 0 0 1-1.66 0L2 12.5"/><path d="m22 17.5-9.17 4.16a2 2 0 0 1-1.66 0L2 17.5"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-seedling" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-8"/><path d="M12 14C12 9 9 6 4 6c0 5 3 8 8 8Z"/><path d="M12 14c0-4 3-7 8-7 0 4-3 7-8 7Z"/></symbol>
+  <symbol id="i-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></symbol>
+  <symbol id="i-empty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></symbol>
+</svg>
+
+<!-- ============================ BANNER DATA CONTOH ============================ -->
+<div class="demo-banner" id="demo-banner" hidden>
+  <div class="container demo-banner__inner">
+    <span class="demo-banner__tag">Data contoh</span>
+    <p id="demo-banner-text">
+      Produk dan nama mahasiswa di halaman ini hanya contoh untuk pratinjau tampilan — bukan data asli.
+    </p>
+  </div>
+</div>
+
+<!-- ============================ NAVBAR ============================ -->
+<header class="nav" id="navbar">
+  <div class="container nav__inner">
+    <a class="brand" href="index.html" aria-label="Beranda Pojok Wirausaha Mahasiswa">
+      <img class="brand__logo" src="assets/icons/logo.svg" alt="" width="44" height="44">
+      <span class="brand__text">
+        <span class="brand__name">Pojok Wirausaha</span>
+        <span class="brand__sub">PGSD UPI Kampus Serang</span>
+      </span>
+    </a>
+
+    <nav class="nav__menu" id="nav-menu" aria-label="Navigasi utama">
+      <a href="#beranda" class="nav__link">Beranda</a>
+      <a href="#produk" class="nav__link">Produk</a>
+      <a href="#kategori" class="nav__link">Kategori</a>
+      <a href="#wirausaha" class="nav__link">Wirausaha</a>
+      <a href="#cerita" class="nav__link">Cerita</a>
+      <a href="#tentang" class="nav__link">Tentang</a>
+      <a href="#daftar" class="nav__link nav__link--mobile-only">Daftarkan Usaha</a>
+      <a href="#" class="btn btn--primary btn--sm nav__cta" data-daftar-link>
+        <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>
+        Daftarkan Usahamu
+      </a>
+    </nav>
+
+    <div class="nav__actions">
+      <a class="icon-btn icon-btn--fav" href="#favorit" aria-label="Lihat produk favorit saya">
+        <svg class="icon" aria-hidden="true"><use href="#i-heart"></use></svg>
+        <span class="fav-count" id="fav-count-badge" hidden>0</span>
+      </a>
+      <button class="icon-btn nav__toggle" id="nav-toggle" aria-label="Buka menu" aria-expanded="false" aria-controls="nav-menu">
+        <svg class="icon icon--menu" aria-hidden="true"><use href="#i-menu"></use></svg>
+        <svg class="icon icon--close" aria-hidden="true"><use href="#i-x"></use></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<div class="nav-backdrop" id="nav-backdrop" hidden></div>
+
+<main id="konten-utama">
+
+<!-- ============================ HERO ============================ -->
+<section class="hero" id="beranda">
+  <div class="hero__decor" aria-hidden="true">
+    <span class="blob blob--1"></span>
+    <span class="blob blob--2"></span>
+    <span class="blob blob--3"></span>
+    <span class="grid-dots"></span>
+  </div>
+
+  <div class="container hero__inner">
+    <div class="hero__content">
+      <p class="eyebrow">
+        <svg class="icon" aria-hidden="true"><use href="#i-sparkles"></use></svg>
+        Student Entrepreneurship Hub
+      </p>
+      <h1 class="hero__title">
+        Karya Mahasiswa.<br>
+        <span class="grad-text">Pilihan Kita.</span>
+      </h1>
+      <p class="hero__sub">
+        Temukan makanan, fashion, kerajinan, produk pendidikan, jasa kreatif, dan berbagai
+        karya mahasiswa PGSD UPI Kampus Serang.
+      </p>
+      <div class="hero__actions">
+        <a href="#produk" class="btn btn--primary btn--lg" id="btn-jelajahi">
+          <span id="btn-jelajahi-teks">Jelajahi Produk</span>
+          <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+        </a>
+        <a href="#" class="btn btn--ghost btn--lg" data-daftar-link>
+          <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>
+          Daftarkan Usahamu
+        </a>
+      </div>
+      <p class="hero__note">
+        <svg class="icon" aria-hidden="true"><use href="#i-seedling"></use></svg>
+        Karya Mahasiswa • Belanja Mahasiswa • Tumbuh Bersama
+      </p>
+    </div>
+
+    <div class="hero__visual" aria-hidden="true">
+      <div class="float-card float-card--1">
+        <img src="assets/images/hero-1.svg" alt="" width="120" height="120" loading="eager">
+        <div><strong>Brownies Lumer</strong><span>Rp25.000</span></div>
+      </div>
+      <div class="float-card float-card--2">
+        <img src="assets/images/hero-2.svg" alt="" width="120" height="120" loading="lazy">
+        <div><strong>Totebag Lukis</strong><span>Rp65.000</span></div>
+      </div>
+      <div class="float-card float-card--3">
+        <img src="assets/images/hero-3.svg" alt="" width="120" height="120" loading="lazy">
+        <div><strong>Buket Wisuda</strong><span>Rp110.000</span></div>
+      </div>
+      <div class="float-card float-card--4">
+        <img src="assets/images/hero-4.svg" alt="" width="120" height="120" loading="lazy">
+        <div><strong>Media Belajar</strong><span>Rp120.000</span></div>
+      </div>
+      <div class="hero__ring"></div>
+    </div>
+  </div>
+
+  <!-- ---------- SEARCH BAR ---------- -->
+  <div class="container">
+    <form class="searchbar" id="search-form" role="search" autocomplete="off">
+      <label class="sr-only" for="search-input">Cari produk, usaha, kategori, atau nama mahasiswa</label>
+      <svg class="icon searchbar__icon" aria-hidden="true"><use href="#i-search"></use></svg>
+      <input class="searchbar__input" id="search-input" type="search" name="q"
+             placeholder="Cari makanan, merchandise, jasa desain, media pembelajaran..."
+             aria-describedby="search-hint">
+      <button class="searchbar__clear" id="search-clear" type="button" aria-label="Hapus pencarian" hidden>
+        <svg class="icon" aria-hidden="true"><use href="#i-x"></use></svg>
+      </button>
+      <button class="btn btn--primary searchbar__btn" type="submit">Cari</button>
+    </form>
+    <p class="searchbar__hint" id="search-hint">
+      Coba: <button type="button" class="chip-mini" data-quick="brownies">brownies</button>
+      <button type="button" class="chip-mini" data-quick="totebag">totebag</button>
+      <button type="button" class="chip-mini" data-quick="jasa desain">jasa desain</button>
+      <button type="button" class="chip-mini" data-quick="media pembelajaran">media pembelajaran</button>
+    </p>
+  </div>
+</section>
+
+<!-- ============================ STATISTIK ============================ -->
+<section class="stats" id="statistik" aria-label="Statistik Pojok Wirausaha">
+  <div class="container stats__grid">
+    <div class="stat">
+      <svg class="icon stat__icon" aria-hidden="true"><use href="#i-store"></use></svg>
+      <span class="stat__num" data-counter id="stat-usaha">0</span>
+      <span class="stat__label">Usaha Mahasiswa</span>
+    </div>
+    <div class="stat">
+      <svg class="icon stat__icon" aria-hidden="true"><use href="#i-bag"></use></svg>
+      <span class="stat__num" data-counter id="stat-produk">0</span>
+      <span class="stat__label">Produk</span>
+    </div>
+    <div class="stat">
+      <svg class="icon stat__icon" aria-hidden="true"><use href="#i-layers"></use></svg>
+      <span class="stat__num" data-counter id="stat-kategori">0</span>
+      <span class="stat__label">Kategori</span>
+    </div>
+    <div class="stat">
+      <svg class="icon stat__icon" aria-hidden="true"><use href="#i-flame"></use></svg>
+      <span class="stat__num" data-counter id="stat-promo">0</span>
+      <span class="stat__label">Promo Aktif</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ BELUM ADA DATA ============================ -->
+<section class="section" id="belum-ada" hidden>
+  <div class="container">
+    <div class="kosong-panel">
+      <span class="kosong-panel__icon"><svg class="icon" aria-hidden="true"><use href="#i-seedling"></use></svg></span>
+      <h2 class="kosong-panel__title" id="kosong-panel-title">Belum ada usaha yang terdaftar.</h2>
+      <p class="kosong-panel__sub" id="kosong-panel-sub">
+        Pojok Wirausaha baru dibuka. Jadilah mahasiswa PGSD pertama yang menampilkan
+        produk atau jasamu di sini — pendaftaran gratis dan hanya perlu beberapa menit.
+      </p>
+      <div class="kosong-panel__actions" id="kosong-panel-actions">
+        <a class="btn btn--primary btn--lg" href="#" data-daftar-link>
+          <svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg>
+          Daftarkan Usahamu
+        </a>
+        <a class="btn btn--outline btn--lg" href="#tentang">Pelajari dulu</a>
+        <button class="btn btn--outline btn--lg" type="button" id="btn-retry-kosong" hidden>Muat ulang</button>
+      </div>
+      <ol class="kosong-panel__langkah" id="kosong-panel-langkah">
+        <li><span>1</span> Isi formulir pendaftaran usaha</li>
+        <li><span>2</span> Pengelola meninjau produkmu</li>
+        <li><span>3</span> Produk tayang di halaman ini</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ KATEGORI ============================ -->
+<section class="section" id="kategori">
+  <div class="container">
+    <header class="section__head">
+      <div>
+        <p class="eyebrow eyebrow--muted">Kategori</p>
+        <h2 class="section__title">Mau Cari Apa Hari Ini?</h2>
+        <p class="section__sub">Pilih kategori untuk langsung menyaring produk mahasiswa.</p>
+      </div>
+    </header>
+    <div class="cat-scroller">
+      <div class="cat-grid" id="category-grid"><!-- diisi JS --></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PRODUK PILIHAN ============================ -->
+<section class="section section--soft" id="pilihan">
+  <div class="container">
+    <header class="section__head">
+      <div>
+        <p class="eyebrow eyebrow--muted"><svg class="icon" aria-hidden="true"><use href="#i-sparkles"></use></svg> Pilihan</p>
+        <h2 class="section__title">Produk Pilihan Mahasiswa</h2>
+        <p class="section__sub">Karya-karya menarik dari mahasiswa PGSD UPI Kampus Serang.</p>
+      </div>
+      <button class="btn btn--soft btn--sm" id="btn-acak" type="button">
+        <svg class="icon" aria-hidden="true"><use href="#i-sparkles"></use></svg>
+        Acak Lagi
+      </button>
+    </header>
+    <div class="grid grid--produk" id="featured-grid" aria-live="polite"><!-- diisi JS --></div>
+  </div>
+</section>
+
+<!-- ============================ KATALOG PRODUK ============================ -->
+<section class="section" id="produk">
+  <div class="container">
+    <header class="section__head">
+      <div>
+        <p class="eyebrow eyebrow--muted">Katalog</p>
+        <h2 class="section__title">Semua Produk &amp; Jasa</h2>
+        <p class="section__sub">Saring berdasarkan kategori, harga, dan urutan yang kamu mau.</p>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <div class="chips" id="filter-chips" role="group" aria-label="Filter kategori"><!-- diisi JS --></div>
+
+      <div class="toolbar__row">
+        <div class="field">
+          <label class="field__label" for="sort-select">Urutkan</label>
+          <select class="select" id="sort-select">
+            <option value="terbaru">Terbaru</option>
+            <option value="harga-asc">Harga Terendah</option>
+            <option value="harga-desc">Harga Tertinggi</option>
+            <option value="nama-asc">Nama A–Z</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label" for="price-select">Rentang harga</label>
+          <select class="select" id="price-select">
+            <option value="all">Semua harga</option>
+            <option value="0-25000">&lt; Rp25.000</option>
+            <option value="25000-50000">Rp25.000 – Rp50.000</option>
+            <option value="50000-100000">Rp50.000 – Rp100.000</option>
+            <option value="100000-999999999">&gt; Rp100.000</option>
+          </select>
+        </div>
+        <div class="field field--grow">
+          <span class="field__label">Hasil</span>
+          <p class="result-count" id="result-count" aria-live="polite">—</p>
+        </div>
+        <button class="btn btn--soft btn--sm" id="btn-reset" type="button">Reset filter</button>
+      </div>
+    </div>
+
+    <div class="grid grid--produk" id="product-grid" aria-live="polite"><!-- diisi JS --></div>
+
+    <div class="empty" id="empty-state" hidden>
+      <svg class="empty__art" aria-hidden="true"><use href="#i-empty"></use></svg>
+      <h3>Belum menemukan yang kamu cari.</h3>
+      <p>Coba gunakan kata kunci atau kategori lainnya.</p>
+      <button class="btn btn--primary btn--sm" type="button" id="btn-empty-reset">Tampilkan semua produk</button>
+    </div>
+
+    <div class="alert" id="error-state" hidden role="alert">
+      <svg class="icon" aria-hidden="true"><use href="#i-alert"></use></svg>
+      <div>
+        <strong>Produk sedang tidak dapat dimuat.</strong>
+        <span>Silakan coba kembali beberapa saat lagi.</span>
+      </div>
+      <button class="btn btn--soft btn--sm" type="button" id="btn-retry">Muat ulang</button>
+    </div>
+
+    <div class="loadmore" id="loadmore-wrap" hidden>
+      <button class="btn btn--outline" type="button" id="btn-loadmore">Tampilkan lebih banyak</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ WIRAUSAHA PILIHAN ============================ -->
+<section class="section section--soft" id="wirausaha">
+  <div class="container">
+    <header class="section__head">
+      <div>
+        <p class="eyebrow eyebrow--muted"><svg class="icon" aria-hidden="true"><use href="#i-store"></use></svg> Sorotan</p>
+        <h2 class="section__title">Wirausaha Mahasiswa Minggu Ini</h2>
+        <p class="section__sub">Cerita singkat di balik usaha yang sedang tumbuh.</p>
+      </div>
+    </header>
+    <div id="featured-seller"><!-- diisi JS --></div>
+
+    <h3 class="subheading">Usaha Mahasiswa Lainnya</h3>
+    <div class="grid grid--seller" id="seller-grid"><!-- diisi JS --></div>
+  </div>
+</section>
+
+<!-- ============================ PROMO ============================ -->
+<section class="section" id="promo">
+  <div class="container">
+    <header class="section__head">
+      <div>
+        <p class="eyebrow eyebrow--muted"><svg class="icon" aria-hidden="true"><use href="#i-flame"></use></svg> Promo</p>
+        <h2 class="section__title">🔥 Promo Minggu Ini</h2>
+        <p class="section__sub">Hanya menampilkan promo yang masih berlaku hari ini.</p>
+      </div>
+    </header>
+    <div class="grid grid--promo" id="promo-grid"><!-- diisi JS --></div>
+  </div>
+</section>
+
+<!-- ============================ NILAI / SPECIAL SECTION ============================ -->
+<section class="section section--value" id="tentang">
+  <div class="container">
+    <header class="section__head section__head--center">
+      <div>
+        <p class="eyebrow eyebrow--muted">Tentang</p>
+        <h2 class="section__title">Dibuat oleh Mahasiswa, untuk Semua</h2>
+        <p class="section__sub">Ekosistem wirausaha mahasiswa PGSD UPI Kampus Serang.</p>
+      </div>
+    </header>
+    <div class="value-grid">
+      <article class="value-card value-card--1">
+        <span class="value-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-compass"></use></svg></span>
+        <h3>Temukan</h3>
+        <p>Temukan berbagai produk dan layanan mahasiswa PGSD UPI Kampus Serang dalam satu etalase.</p>
+      </article>
+      <article class="value-card value-card--2">
+        <span class="value-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-heart"></use></svg></span>
+        <h3>Dukung</h3>
+        <p>Setiap pembelian berarti ikut mendukung mahasiswa mengembangkan usahanya.</p>
+      </article>
+      <article class="value-card value-card--3">
+        <span class="value-card__icon"><svg class="icon" aria-hidden="true"><use href="#i-seedling"></use></svg></span>
+        <h3>Tumbuh</h3>
+        <p>Mendorong mahasiswa belajar kreativitas, kemandirian, dan kewirausahaan lewat pengalaman nyata.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CERITA ============================ -->
+<section class="section section--soft" id="cerita">
+  <div class="container">
+    <header class="section__head">
+      <div>
+        <p class="eyebrow eyebrow--muted"><svg class="icon" aria-hidden="true"><use href="#i-book"></use></svg> Cerita</p>
+        <h2 class="section__title">Cerita di Balik Usaha</h2>
+        <p class="section__sub">Perjalanan kecil yang layak dibaca sebelum kamu memulai usahamu sendiri.</p>
+      </div>
+    </header>
+    <div class="grid grid--cerita" id="story-grid"><!-- diisi JS --></div>
+  </div>
+</section>
+
+<!-- ============================ FAVORIT ============================ -->
+<section class="section" id="favorit">
+  <div class="container">
+    <header class="section__head">
+      <div>
+        <p class="eyebrow eyebrow--muted"><svg class="icon" aria-hidden="true"><use href="#i-heart"></use></svg> Tersimpan</p>
+        <h2 class="section__title">Produk Favorit Saya</h2>
+        <p class="section__sub">Tersimpan di perangkatmu sendiri — tanpa perlu login.</p>
+      </div>
+      <button class="btn btn--soft btn--sm" id="btn-clear-fav" type="button" hidden>Kosongkan favorit</button>
+    </header>
+    <div class="grid grid--produk" id="favorite-grid"><!-- diisi JS --></div>
+    <div class="empty empty--sm" id="favorite-empty">
+      <svg class="empty__art" aria-hidden="true"><use href="#i-heart"></use></svg>
+      <h3>Belum ada produk favorit.</h3>
+      <p>Tekan ikon ♡ pada produk untuk menyimpannya di sini.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ TERAKHIR DILIHAT ============================ -->
+<section class="section section--tight" id="terakhir" hidden>
+  <div class="container">
+    <header class="section__head">
+      <div>
+        <h2 class="section__title section__title--sm">Terakhir Kamu Lihat</h2>
+      </div>
+    </header>
+    <div class="rail" id="recent-rail"><!-- diisi JS --></div>
+  </div>
+</section>
+
+<!-- ============================ CTA DAFTAR ============================ -->
+<section class="cta" id="daftar">
+  <div class="container cta__inner">
+    <div class="cta__decor" aria-hidden="true"><span class="blob blob--4"></span><span class="blob blob--5"></span></div>
+    <p class="eyebrow eyebrow--light"><svg class="icon" aria-hidden="true"><use href="#i-sparkles"></use></svg> Gratis untuk mahasiswa PGSD</p>
+    <h2 class="cta__title">Kamu Mahasiswa PGSD dan Punya Usaha?</h2>
+    <p class="cta__sub">Tampilkan produkmu dan biarkan lebih banyak orang mengenal karya dan usahamu.</p>
+    <a class="btn btn--light btn--lg" href="#" data-daftar-link>
+      Daftarkan Usahamu Sekarang
+      <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+    </a>
+    <p class="cta__note">Produk ditinjau pengelola terlebih dahulu sebelum tayang di website.</p>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="footer">
+  <div class="container footer__grid">
+    <div class="footer__brand">
+      <div class="brand">
+        <img class="brand__logo" src="assets/icons/logo.svg" alt="" width="44" height="44" loading="lazy">
+        <span class="brand__text">
+          <span class="brand__name">Pojok Wirausaha Mahasiswa</span>
+          <span class="brand__sub">PGSD UPI Kampus Serang</span>
+        </span>
+      </div>
+      <p class="footer__tagline">Karya Mahasiswa • Belanja Mahasiswa • Tumbuh Bersama</p>
+      <p class="footer__desc">
+        Dikembangkan sebagai ruang promosi dan pengembangan kewirausahaan mahasiswa
+        PGSD UPI Kampus Serang.
+      </p>
+    </div>
+
+    <nav class="footer__col" aria-label="Tautan produk">
+      <h3>Jelajahi</h3>
+      <a href="#produk">Produk</a>
+      <a href="#kategori">Kategori</a>
+      <a href="#promo">Promo</a>
+      <a href="#cerita">Cerita Usaha</a>
+    </nav>
+
+    <nav class="footer__col" aria-label="Tautan informasi">
+      <h3>Informasi</h3>
+      <a href="#" data-daftar-link>Daftarkan Usaha</a>
+      <a href="#tentang">Tentang</a>
+      <a href="#wirausaha">Wirausaha</a>
+      <a href="#favorit">Favorit Saya</a>
+    </nav>
+
+    <div class="footer__col">
+      <h3>Kontak</h3>
+      <a href="https://pgsd-serang.upi.edu" target="_blank" rel="noopener">pgsd-serang.upi.edu</a>
+      <a href="https://kd-serang.upi.edu" target="_blank" rel="noopener">kd-serang.upi.edu</a>
+      <p class="footer__small">Kampus UPI di Serang, Kota Serang, Banten.</p>
+    </div>
+  </div>
+
+  <div class="container footer__bottom">
+    <p class="disclaimer">
+      <strong>Disclaimer.</strong> Pojok Wirausaha Mahasiswa berfungsi sebagai media promosi produk
+      mahasiswa. Transaksi dilakukan langsung antara pembeli dan penjual. Pengelola website tidak
+      menjadi pihak dalam transaksi.
+    </p>
+    <p class="copyright">© <span id="tahun">2026</span> Pojok Wirausaha Mahasiswa PGSD UPI Kampus Serang.</p>
+  </div>
+</footer>
+
+<!-- ============================ MODAL DETAIL PRODUK ============================ -->
+<div class="modal" id="product-modal" hidden>
+  <div class="modal__overlay" data-close-modal></div>
+  <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+    <button class="modal__close" type="button" aria-label="Tutup detail produk" data-close-modal>
+      <svg class="icon" aria-hidden="true"><use href="#i-x"></use></svg>
+    </button>
+    <div class="modal__body" id="modal-body"><!-- diisi JS --></div>
+  </div>
+</div>
+
+<!-- ============================ MODAL CERITA ============================ -->
+<div class="modal" id="story-modal" hidden>
+  <div class="modal__overlay" data-close-modal></div>
+  <div class="modal__dialog modal__dialog--narrow" role="dialog" aria-modal="true" aria-labelledby="story-title" tabindex="-1">
+    <button class="modal__close" type="button" aria-label="Tutup cerita" data-close-modal>
+      <svg class="icon" aria-hidden="true"><use href="#i-x"></use></svg>
+    </button>
+    <div class="modal__body" id="story-body"><!-- diisi JS --></div>
+  </div>
+</div>
+
+<!-- ============================ TOAST ============================ -->
+<div class="toast" id="toast" role="status" aria-live="polite" hidden>
+  <svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg>
+  <span id="toast-text"></span>
+</div>
+
+<!-- ============================ SCRIPT ============================ -->
+<script src="js/config.js"></script>
+<script src="js/data-demo.js"></script>
+<script src="js/api.js"></script>
+<script src="js/favorites.js"></script>
+<script src="js/products.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
