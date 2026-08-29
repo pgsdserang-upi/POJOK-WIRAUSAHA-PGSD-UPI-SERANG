@@ -615,6 +615,8 @@ Bila foto gagal dimuat, kartu otomatis jatuh ke `assets/images/placeholder.svg`.
 | Foto tidak tampil | Jalankan `perbaikiIzinFoto()` lalu `ujiFotoPublik()`. Kalau tetap gagal, kebijakan Google Workspace melarang berbagi tautan — lihat bagian 9 |
 | Kiriman Form tidak masuk ke sheet `PRODUK` | Trigger belum terpasang. Jalankan `setupPojokWirausaha()` lagi, lalu cek `showSetupInfo()` bagian "Trigger aktif" |
 | Kiriman masuk tapi kolomnya berantakan | Judul pertanyaan Form diubah tanpa mengubah `CONFIG.T` di `Code.gs`. Samakan keduanya |
+| Sheet `PRODUK` tampak kosong padahal Form sudah dikirim | Gulir ke bawah — kiriman mungkin tertulis jauh di bawah baris kosong. Jalankan `rapikanSheet()` untuk menaikkannya ke atas |
+| Muncul kartu produk kosong bertuliskan "Produk / Gratis / Kontak kosong" | Ada baris hantu yang kolom STATUS-nya terisi TAYANG. Jalankan `rapikanSheet()` |
 | `ID_PRODUK` kosong pada baris tertentu | Baris itu diketik manual. Jalankan `isiIdKosong()` |
 | Kategori produk tidak muncul di filter | Ejaan kategori di sheet berbeda dari daftar resmi. Pakai dropdown, jangan diketik |
 | Semua produk tampil "belum ada usaha" padahal sheet terisi | Tidak ada baris ber-`STATUS = TAYANG`. Jalankan `ujiApi()` untuk memastikan |

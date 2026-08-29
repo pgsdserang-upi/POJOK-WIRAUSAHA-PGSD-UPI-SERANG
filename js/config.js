@@ -10,7 +10,7 @@
    Setelah men-deploy apps-script/Code.gs sebagai Web App, tempel URL-nya di sini.
    Contoh: "https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxx/exec"
 -------------------------------------------------------------------------- */
-var API_URL = "https://script.google.com/macros/s/AKfycbxSy6VQ_v4rJm6YGfLKnCi-1miITdbJn0Ap51Ok4lJBfWHvzwF98N-ASHmEyYHnVxG1Cg/exec";
+var API_URL = "https://script.google.com/macros/s/AKfycbzMXCCQamCFuLtcnFAiY2HX6MjpY2xSjZ2Qaywxa0dIsEUOI7gFxSbY0tbJiunDbPUFPw/exec";
 
 /* --------------------------------------------------------------------------
    2) URL GOOGLE FORM PENDAFTARAN USAHA

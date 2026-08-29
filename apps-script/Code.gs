@@ -454,8 +454,14 @@ function aturValidasiProduk_(ss) {
     sheet.setConditionalFormatRules(aturan);
   }
 
+  /* Checkbox HANYA dipasang pada baris yang sudah berisi data.
+     insertCheckboxes() menulis nilai FALSE ke setiap sel yang dikenainya, sehingga
+     memasangnya ke ribuan baris kosong membuat getLastRow() melonjak — akibatnya
+     appendRow() menaruh kiriman Form jauh di bawah dan baris kosong ikut terbaca API.
+     Baris baru mendapat checkbox-nya sendiri di onFormSubmit(). */
   if (kol.FEATURED) {
-    sheet.getRange(2, kol.FEATURED, jml, 1).insertCheckboxes();
+    const barisBerisi = sheet.getLastRow() - 1;
+    if (barisBerisi > 0) sheet.getRange(2, kol.FEATURED, barisBerisi, 1).insertCheckboxes();
   }
 
   if (kol.KATEGORI) {
@@ -868,6 +874,7 @@ function onOpenSpreadsheet(e) {
       { name: 'Tolak baris terpilih',        functionName: 'tolakTerpilih' },
       { name: 'Nonaktifkan baris terpilih',  functionName: 'nonaktifkanTerpilih' },
       null,
+      { name: 'Rapikan sheet (bersihkan baris hantu)', functionName: 'rapikanSheet' },
       { name: 'Isi ID yang masih kosong',    functionName: 'isiIdKosong' },
       { name: 'Perbaiki izin & URL foto',    functionName: 'perbaikiIzinFoto' },
       { name: 'Uji foto dapat diakses publik', functionName: 'ujiFotoPublik' },
@@ -986,6 +993,8 @@ function kumpulkanData_() {
   /* ---------- PRODUK: hanya STATUS = TAYANG ---------- */
   let produk = bacaSheet_(ss, CONFIG.SHEET_PRODUK)
     .filter(function (r) {
+      // baris tanpa nama produk bukan produk — pengaman agar sel nyasar tidak ikut terkirim
+      if (String(r.namaProduk || '').trim() === '') return false;
       return String(r.status || '').toUpperCase() === CONFIG.STATUS_TAYANG;
     })
     .map(function (r) {
@@ -1009,7 +1018,7 @@ function kumpulkanData_() {
   const penjual = bacaSheet_(ss, CONFIG.SHEET_PENJUAL)
     .filter(function (r) {
       const s = String(r.status || 'AKTIF').toUpperCase();
-      return r.idPenjual && s !== 'NONAKTIF';
+      return r.idPenjual && String(r.namaUsaha || '').trim() !== '' && s !== 'NONAKTIF';
     })
     .map(function (r) {
       r.whatsapp = normalisasiWa_(r.whatsapp);
@@ -1021,6 +1030,7 @@ function kumpulkanData_() {
   /* ---------- PROMO: aktif + masih dalam rentang tanggal ---------- */
   const kini = new Date(); kini.setHours(0, 0, 0, 0);
   const promo = bacaSheet_(ss, CONFIG.SHEET_PROMO).filter(function (r) {
+    if (String(r.judulPromo || '').trim() === '') return false;   // baris tanpa judul bukan promo
     const s = String(r.status || 'AKTIF').toUpperCase();
     if (s !== 'AKTIF' && s !== 'TAYANG') return false;
     const mulai = keTanggal_(r.tanggalMulai);
@@ -1370,6 +1380,81 @@ function isiIdKosong() {
   }
   bersihkanCache();
   Logger.log('%s ID produk dibuat.', dibuat);
+}
+
+
+/**
+ * Membersihkan "baris hantu" dan menaikkan kembali data asli ke atas.
+ *
+ * Kenapa perlu: versi awal script ini memasang checkbox ke seluruh kolom FEATURED
+ * sampai baris 1000. insertCheckboxes() menuliskan nilai FALSE ke setiap sel yang
+ * dikenainya, sehingga Sheet menganggap 999 baris kosong itu "berisi". Akibatnya
+ * appendRow() menaruh kiriman Form di baris ~1001 — jauh di bawah layar — dan baris
+ * kosong di atas ikut terbaca sebagai produk oleh API.
+ *
+ * Fungsi ini menyimpan hanya baris yang punya ID atau nama, menuliskannya ulang mulai
+ * baris 2, lalu memasang kembali dropdown dan checkbox seperlunya. Aman dijalankan
+ * berkali-kali dan tidak menghapus data yang berisi.
+ */
+function rapikanSheet() {
+  const ss = spreadsheetAktif_();
+  const out = ['=== RAPIKAN SHEET ==='];
+
+  const target = [
+    [CONFIG.SHEET_PRODUK,  ['ID_PRODUK', 'NAMA_PRODUK']],
+    [CONFIG.SHEET_PENJUAL, ['ID_PENJUAL', 'NAMA_USAHA']],
+    [CONFIG.SHEET_PROMO,   ['ID_PROMO', 'JUDUL_PROMO']],
+    [CONFIG.SHEET_CERITA,  ['ID_CERITA', 'JUDUL']]
+  ];
+
+  target.forEach(function (t) {
+    const sheet = ss.getSheetByName(t[0]);
+    if (!sheet) return;
+
+    const lebar = sheet.getLastColumn();
+    const akhir = sheet.getLastRow();
+    if (lebar < 1 || akhir < 2) { out.push(t[0] + '  : belum ada isi'); return; }
+
+    const kol = petaKolom_(sheet);
+    const kunci = t[1].map(function (n) { return kol[n]; }).filter(Boolean);
+    if (!kunci.length) { out.push(t[0] + '  : kolom kunci tidak ditemukan, dilewati'); return; }
+
+    const data = sheet.getRange(2, 1, akhir - 1, lebar).getValues();
+    const nyata = data.filter(function (r) {
+      return kunci.some(function (c) {
+        return String(r[c - 1] == null ? '' : r[c - 1]).trim() !== '';
+      });
+    });
+
+    // kosongkan seluruh area di bawah header, lalu tulis ulang baris yang benar-benar berisi
+    sheet.getRange(2, 1, sheet.getMaxRows() - 1, lebar).clearContent().clearDataValidations();
+    if (nyata.length) sheet.getRange(2, 1, nyata.length, lebar).setValues(nyata);
+
+    out.push(t[0] + '  : ' + nyata.length + ' baris berisi dipertahankan, ' +
+             (data.length - nyata.length) + ' baris hantu dibersihkan');
+
+    if (t[0] === CONFIG.SHEET_PRODUK && nyata.length) {
+      out.push('   isi sheet PRODUK sekarang:');
+      nyata.slice(0, 20).forEach(function (r, i) {
+        const id = kol.ID_PRODUK ? r[kol.ID_PRODUK - 1] : '';
+        const nama = kol.NAMA_PRODUK ? r[kol.NAMA_PRODUK - 1] : '';
+        const st = kol.STATUS ? r[kol.STATUS - 1] : '';
+        out.push('     baris ' + (i + 2) + ' | ' + id + ' | ' + nama + ' | ' + st);
+      });
+    }
+  });
+
+  aturValidasiProduk_(ss);
+  aturValidasiLain_(ss);
+  bersihkanCache();
+
+  out.push('');
+  out.push('Selesai. Kalau ada baris berstatus MENUNGGU, ubah ke TAYANG lewat dropdown,');
+  out.push('tunggu sekitar satu menit, lalu muat ulang website.');
+
+  const teks = out.join('\n');
+  Logger.log(teks);
+  return teks;
 }
 
 
