@@ -410,6 +410,38 @@ bila suatu saat ada kolom baru yang lolos.
 
 ## 9. Foto produk — bagian yang paling sering bermasalah
 
+### Foto tidak wajib: ada ilustrasi kategori otomatis
+
+Mengunggah foto **opsional**. Produk tanpa foto tetap tampil rapi: kartunya memakai
+ilustrasi yang dibuat otomatis dari kategori yang dipilih mahasiswa — gradasi pastel
+kategori itu plus lambangnya (🍜 Kuliner, ☕ Minuman, 👕 Fashion, dan seterusnya).
+
+Ilustrasinya digambar langsung sebagai SVG di halaman: tidak ada berkas gambar yang
+diunduh, tajam di ukuran berapa pun, dan tidak memakan penyimpanan sama sekali. Supaya
+deretan produk sekategori tidak terlihat seperti fotokopi, arah gradasi dan susunan
+lingkarannya berubah-ubah mengikuti ID produk — produk yang sama selalu mendapat tampilan
+yang sama.
+
+Berlaku juga untuk kartu usaha, sorotan wirausaha, dan logo di halaman toko.
+
+Kalau suatu saat kamu ingin mewajibkan foto asli, ubah di `CONFIG` pada `Code.gs`:
+
+```js
+FOTO_WAJIB: true,
+```
+
+lalu jalankan `setupPojokWirausaha()` sekali lagi — pertanyaan di Form ikut menyesuaikan
+sendiri, termasuk teks bantuannya.
+
+> **Pertimbangan.** Ilustrasi kategori membuat pendaftaran jauh lebih ringan dan
+> menghindari seluruh urusan izin Drive di bawah ini. Tukarannya: semua produk dalam satu
+> kategori terlihat sama, padahal foto produk adalah hal yang paling menentukan orang mau
+> membeli atau tidak. Untuk wadah belajar berwirausaha, memotret produk sendiri sebetulnya
+> bagian dari latihannya — jadi pertimbangkan tetap mendorong mahasiswa mengunggah foto,
+> meski tidak diwajibkan sistem.
+
+### Kalau mahasiswa mengunggah foto
+
 Google Form menyimpan unggahan ke Drive dalam keadaan **privat**, dan URL yang diberikannya
 berbentuk `https://drive.google.com/open?id=…` yang **tidak bisa** dipakai oleh tag `<img>`.
 Kalau dibiarkan, semua foto akan gagal tampil.
@@ -440,6 +472,32 @@ Tiga jalan keluar, urut dari yang paling rapi:
    - **path relatif di repo**, misalnya `assets/images/brownies.jpg` — cukup commit
      fotonya ke GitHub. Ini pilihan paling stabil dan paling cepat dimuat, karena
      dilayani langsung oleh GitHub Pages tanpa bergantung pada Drive.
+
+### Batas ukuran & kuota penyimpanan
+
+Foto dari kamera ponsel biasanya 2–5 MB, padahal website hanya menampilkannya selebar
+1200 px. Dua pengaman dipasang supaya Drive tidak cepat penuh — keduanya diatur di
+`CONFIG` bagian atas `Code.gs`:
+
+| Pengaman | Nilai | Cara kerjanya |
+|---|---|---|
+| `MAKS_FOTO_MB` | 2 | Foto di atas 2 MB otomatis dikecilkan jadi JPEG selebar 1600 px (~100–300 KB), aslinya dipindahkan ke Sampah Drive |
+| `KUOTA_PRODUK` | 100 | Setelah 100 produk terkumpul, Google Form otomatis ditutup dan menampilkan pesan bahwa kuota penuh |
+
+Google Form sendiri hanya menyediakan pilihan batas 1 MB / 10 MB / 100 MB — tidak ada
+2 MB — jadi batas itu ditegakkan oleh script, bukan oleh Form. Formnya diset 10 MB supaya
+unggahan tidak langsung ditolak, lalu script yang mengecilkan.
+
+Produk berstatus `DITOLAK` **tidak** memakai kuota. Jadi begitu kamu menolak satu produk,
+pendaftaran terbuka sendiri lagi. Script hanya membuka kembali Form yang ditutupnya
+sendiri — kalau kamu menutup lewat `tutupPendaftaran()`, penutupan itu dihormati.
+
+Fungsi terkait: `cekKuota()` (sisa kuota & perkiraan pemakaian Drive),
+`bukaPendaftaran()`, `tutupPendaftaran()`, dan `hapusFotoDitolak()` untuk memindahkan
+foto produk yang ditolak ke Sampah. Semuanya juga ada di menu **Pojok Wirausaha** di
+spreadsheet.
+
+Dengan pengaturan bawaan, 100 produk hanya memakai sekitar **25 MB** Drive.
 
 ### Memverifikasi
 

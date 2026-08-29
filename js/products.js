@@ -49,6 +49,81 @@ PW.ui = (function () {
       ' onerror="this.onerror=null;this.src=\'' + C.PLACEHOLDER + '\'">';
   }
 
+  /* ======================================================================
+     ILUSTRASI KATEGORI
+     ----------------------------------------------------------------------
+     Dipakai kalau produk tidak punya foto. Digambar langsung sebagai SVG di
+     halaman — tanpa berkas gambar, tanpa unduhan tambahan, dan ukurannya
+     selalu pas berapa pun lebar kartunya.
+
+     Supaya deretan produk dalam satu kategori tidak terlihat seperti fotokopi,
+     bentuknya berubah-ubah mengikuti ID produk: empat arah gradasi dan empat
+     susunan lingkaran, dipilih secara tetap (produk yang sama selalu dapat
+     tampilan yang sama).
+  ====================================================================== */
+  var SUDUT = [
+    { x1: 0, y1: 0, x2: 1, y2: 1 },
+    { x1: 1, y1: 0, x2: 0, y2: 1 },
+    { x1: 0, y1: 1, x2: 1, y2: 0 },
+    { x1: 0, y1: 0, x2: 1, y2: 0 }
+  ];
+  var BENTUK = [
+    [[330, 40, 96], [70, 250, 70], [360, 250, 46]],
+    [[60, 50, 84], [340, 230, 92], [210, 20, 40]],
+    [[380, 150, 110], [40, 120, 62], [140, 280, 52]],
+    [[110, 30, 74], [300, 270, 88], [30, 200, 44]]
+  ];
+
+  function nomorTetap(teks) {
+    var n = 0, s = String(teks || '');
+    for (var i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) % 100000;
+    return n;
+  }
+
+  function artKategori(p, kelas, tinggiRasio) {
+    var kat = p.kategoriMeta || PW.getCategory(p.kategori);
+    var n = nomorTetap(p.id || p.nama);
+    var g = SUDUT[n % SUDUT.length];
+    var bentuk = BENTUK[(n >> 2) % BENTUK.length];
+    var gid = 'art-' + U.slug(p.id || p.nama) + '-' + n;
+    var W = 400, H = tinggiRasio === 'persegi' ? 400 : 300;
+    var cy = H / 2;
+
+    var lingkaran = bentuk.map(function (b) {
+      return '<circle cx="' + b[0] + '" cy="' + Math.round(b[1] * H / 300) + '" r="' + b[2] +
+             '" fill="#ffffff" opacity="0.28"/>';
+    }).join('');
+
+    return '' +
+      '<svg class="card__art ' + (kelas || '') + '" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid slice" ' +
+        'role="img" aria-label="Ilustrasi kategori ' + U.esc(p.kategori) + '">' +
+        '<defs><linearGradient id="' + gid + '" x1="' + g.x1 + '" y1="' + g.y1 + '" x2="' + g.x2 + '" y2="' + g.y2 + '">' +
+          '<stop offset="0%" stop-color="' + kat.c1 + '"/>' +
+          '<stop offset="100%" stop-color="' + kat.c2 + '"/>' +
+        '</linearGradient></defs>' +
+        '<rect width="' + W + '" height="' + H + '" fill="url(#' + gid + ')"/>' +
+        lingkaran +
+        '<circle cx="200" cy="' + cy + '" r="' + Math.round(H * 0.27) + '" fill="#ffffff" opacity="0.58"/>' +
+        '<text x="200" y="' + cy + '" text-anchor="middle" dominant-baseline="central" ' +
+          'font-size="' + Math.round(H * 0.3) + '">' + kat.emoji + '</text>' +
+      '</svg>';
+  }
+
+  /** Gambar kartu: foto asli kalau ada, kalau tidak ilustrasi kategori. */
+  function gambarProduk(p, kelas, w, h, eager) {
+    if (p.foto) return imgAman(p.foto, p.nama, kelas, w, h, eager);
+    return artKategori(p, kelas, w === h ? 'persegi' : 'lebar');
+  }
+
+  /** Sama untuk usaha: logo kalau ada, kalau tidak ilustrasi kategori utamanya. */
+  function gambarPenjual(s, kelas, w, h, eager) {
+    if (s.logo) return imgAman(s.logo, 'Logo ' + s.namaUsaha, kelas, w, h, eager);
+    return artKategori(
+      { id: s.id, nama: s.namaUsaha, kategori: s.kategori || 'Lainnya', kategoriMeta: s.kategoriMeta },
+      kelas, w === h ? 'persegi' : 'lebar'
+    );
+  }
+
   function angkatanTeks(p) {
     var a = String(p.angkatan || "").trim();
     if (!a) return p.namaMahasiswa ? "Oleh " + U.esc(p.namaMahasiswa) : "";
@@ -90,7 +165,7 @@ PW.ui = (function () {
     return '' +
       '<article class="card reveal" style="--c1:' + kat.c1 + ';--c2:' + kat.c2 + '" data-produk="' + U.esc(p.id) + '">' +
         '<div class="card__media" data-act="detail" data-id="' + U.esc(p.id) + '">' +
-          imgAman(p.foto, p.nama, "card__img", 400, 300) +
+          gambarProduk(p, "card__img", 400, 300) +
           '<div class="card__badges">' + badges + "</div>" +
           '<button class="fav-btn" type="button" data-act="fav" data-id="' + U.esc(p.id) + '" ' +
             'aria-pressed="' + (favAktif ? "true" : "false") + '" ' +
@@ -142,7 +217,7 @@ PW.ui = (function () {
   function kartuRail(p) {
     return '' +
       '<button class="rail-card" type="button" data-act="detail" data-id="' + U.esc(p.id) + '">' +
-        imgAman(p.foto, p.nama, "", 180, 180) +
+        gambarProduk(p, "rail-card__img", 180, 180) +
         '<span class="rail-card__body">' +
           '<span class="rail-card__title">' + U.esc(p.nama) + "</span>" +
           '<span class="rail-card__price">' + U.esc(p.hargaTeks) + "</span>" +
@@ -157,7 +232,7 @@ PW.ui = (function () {
     return '' +
       '<article class="seller-card reveal">' +
         '<div class="seller-card__top">' +
-          imgAman(s.logo, "Logo " + s.namaUsaha, "seller-card__logo", 96, 96) +
+          gambarPenjual(s, "seller-card__logo", 96, 96) +
           "<div>" +
             '<h3 class="seller-card__name">' + U.esc(s.namaUsaha) + "</h3>" +
             '<p class="seller-card__owner">' + U.esc(s.namaMahasiswa) +
@@ -181,14 +256,14 @@ PW.ui = (function () {
     return '' +
       '<article class="feature reveal">' +
         '<div class="feature__media">' +
-          imgAman(s.logo, "Foto usaha " + s.namaUsaha, "", 600, 600) +
+          gambarPenjual(s, "", 600, 600) +
           '<span class="feature__tag">Wirausaha Minggu Ini</span>' +
         "</div>" +
         '<div class="feature__body">' +
           '<h3 class="feature__name">' + U.esc(s.namaUsaha) + "</h3>" +
           '<blockquote class="feature__quote">“' + U.esc(kutipan || s.deskripsi) + '”</blockquote>' +
           '<div class="feature__person">' +
-            imgAman(s.logo, "", "feature__avatar", 92, 92) +
+            gambarPenjual(s, "feature__avatar", 92, 92) +
             "<div>" +
               "<strong>" + U.esc(s.namaMahasiswa) + "</strong>" +
               "<span>PGSD Angkatan " + U.esc(s.angkatan || "-") + " • " + s.jumlahProduk + " produk</span>" +
@@ -284,7 +359,7 @@ PW.ui = (function () {
     return '' +
       '<div class="detail" style="--c1:' + kat.c1 + ';--c2:' + kat.c2 + '">' +
         '<div class="detail__media">' +
-          imgAman(p.foto, p.nama, "", 800, 600, true) +
+          gambarProduk(p, "", 800, 600, true) +
           '<div class="detail__badges">' + badges + "</div>" +
         "</div>" +
         '<div class="detail__body">' +
@@ -532,6 +607,7 @@ PW.ui = (function () {
   return {
     toast: toast, ikon: ikon, imgAman: imgAman,
     kartuProduk: kartuProduk, daftarProduk: daftarProduk, skeleton: skeleton,
+    artKategori: artKategori, gambarProduk: gambarProduk, gambarPenjual: gambarPenjual,
     kartuRail: kartuRail, kartuPenjual: kartuPenjual, sorotanPenjual: sorotanPenjual,
     kartuPromo: kartuPromo, kartuCerita: kartuCerita,
     detailProduk: detailProduk, detailCerita: detailCerita,

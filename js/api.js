@@ -230,7 +230,9 @@ PW.normalize = (function () {
     };
 
     if (!p.id) p.id = "PRD-" + U.slug(p.namaUsaha + "-" + p.nama);
-    if (!p.foto) p.foto = PW.config.PLACEHOLDER;
+    // foto sengaja dibiarkan kosong bila memang tidak ada — tampilan kartu akan
+    // menggambar ilustrasi kategori, bukan menampilkan gambar placeholder
+    p.adaFoto = !!p.foto;
     p.baru = U.hariSejak(p.tanggal) <= PW.config.NEW_DAYS;
     p.hargaTeks = U.rupiah(p.harga);
     p.cari = [p.nama, p.namaUsaha, p.namaMahasiswa, p.kategori, p.deskripsi, p.lokasi, p.promo, varian.join(" ")]
@@ -251,7 +253,6 @@ PW.normalize = (function () {
       lokasi: String(pick(row, ["lokasi", "Lokasi", "Lokasi COD"], "")).trim(),
       status: String(pick(row, ["status", "Status"], "AKTIF")).trim().toUpperCase()
     };
-    if (!p.logo) p.logo = PW.config.PLACEHOLDER;
     return p;
   }
 
@@ -383,7 +384,8 @@ PW.api = (function () {
         id: key, namaUsaha: p.namaUsaha || "Usaha Mahasiswa",
         namaMahasiswa: p.namaMahasiswa, angkatan: p.angkatan,
         deskripsi: "", logo: p.foto, whatsapp: p.whatsapp,
-        instagram: p.instagram, lokasi: p.lokasi, status: "AKTIF"
+        instagram: p.instagram, lokasi: p.lokasi, status: "AKTIF",
+        kategori: p.kategori, kategoriMeta: p.kategoriMeta
       };
       penjual.push(petaPenjual[key]);
     });
@@ -401,9 +403,16 @@ PW.api = (function () {
       p.cari = p.cari + " " + String(s.namaUsaha + " " + s.namaMahasiswa).toLowerCase();
     });
 
-    // hitung jumlah produk per penjual
+    // hitung jumlah produk per penjual, dan catat kategori utamanya
+    // (dipakai untuk ilustrasi toko bila usaha itu belum punya logo)
     penjual.forEach(function (s) {
-      s.jumlahProduk = produk.filter(function (p) { return p.idPenjual === s.id; }).length;
+      var milik = produk.filter(function (p) { return p.idPenjual === s.id; });
+      s.jumlahProduk = milik.length;
+      if (!s.kategori && milik.length) {
+        s.kategori = milik[0].kategori;
+        s.kategoriMeta = milik[0].kategoriMeta;
+      }
+      if (!s.logo && milik.length) s.logo = milik[0].foto;   // "" bila produknya juga tanpa foto
     });
     penjual = penjual.filter(function (s) { return s.jumlahProduk > 0; });
 

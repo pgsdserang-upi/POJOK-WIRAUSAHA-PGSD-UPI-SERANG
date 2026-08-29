@@ -127,7 +127,7 @@
     root.innerHTML =
       '<div class="container">' +
         '<section class="toko-hero">' +
-          UI.imgAman(penjual.logo, "Logo " + penjual.namaUsaha, "toko-hero__logo", 192, 192, true) +
+          UI.gambarPenjual(penjual, "toko-hero__logo", 192, 192, true) +
           "<div>" +
             '<h1 class="toko-hero__name">' + U.esc(penjual.namaUsaha) + "</h1>" +
             '<p class="toko-hero__tag">' + U.esc(ringkasKategori(produk)) + "</p>" +

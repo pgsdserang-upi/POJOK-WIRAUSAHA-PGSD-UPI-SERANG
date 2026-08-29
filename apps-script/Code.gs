@@ -119,7 +119,32 @@ const CONFIG = {
   DIGIT_ID: 4,                       // PRD0001
 
   /* --- foto --- */
-  LEBAR_THUMBNAIL: 1200,             // https://drive.google.com/thumbnail?id=..&sz=w1200
+  LEBAR_THUMBNAIL: 1200,             // ukuran yang dipakai website: ?sz=w1200
+
+  /* Batas ukuran foto per produk. Google Form sendiri hanya menyediakan pilihan
+     1 MB / 10 MB / 100 MB — tidak ada 2 MB — jadi batas ini ditegakkan di sini:
+     foto yang lebih besar dikecilkan otomatis, aslinya dipindahkan ke Sampah Drive. */
+  MAKS_FOTO_MB: 2,
+  LEBAR_SIMPAN: 1600,                // lebar foto hasil pengecilan (piksel)
+  HAPUS_ASLI_SETELAH_DIKECILKAN: true,
+
+  /* Foto TIDAK wajib. Produk tanpa foto tetap tampil rapi di website: kartunya
+     memakai ilustrasi otomatis sesuai kategori yang dipilih mahasiswa, lengkap
+     dengan warna pastel dan lambang kategorinya.
+     Ubah ke true kalau suatu saat kamu ingin mewajibkan foto asli. */
+  FOTO_WAJIB: false,
+
+  /* --- kuota --- */
+  /* Setelah jumlah produk (selain DITOLAK) mencapai angka ini, Google Form ditutup
+     otomatis supaya penyimpanan Drive tidak penuh. Terbuka lagi sendiri kalau
+     jumlahnya turun, misalnya setelah admin menolak atau menghapus produk. */
+  KUOTA_PRODUK: 100,
+
+  PESAN_KUOTA_PENUH:
+    'Pendaftaran produk sedang ditutup karena kuota sudah penuh.\n\n' +
+    'Pojok Wirausaha Mahasiswa membatasi jumlah produk yang tayang agar penyimpanan ' +
+    'tetap sehat. Silakan coba lagi beberapa waktu lagi, atau hubungi pengelola ' +
+    'program studi PGSD UPI Kampus Serang.',
 
   /* --- API --- */
   CACHE_DETIK: 60,                   // 0 = matikan cache
@@ -136,7 +161,8 @@ const CONFIG = {
 const PROP = {
   FORM_ID:  'PW_FORM_ID',
   SHEET_ID: 'PW_SPREADSHEET_ID',
-  SETUP_AT: 'PW_SETUP_AT'
+  SETUP_AT: 'PW_SETUP_AT',
+  TUTUP_OTOMATIS: 'PW_DITUTUP_OTOMATIS'   // penanda: Form ditutup script, bukan oleh admin
 };
 
 /* Header setiap sheet. URUTAN INI MENENTUKAN URUTAN KOLOM — jangan diacak setelah
@@ -670,9 +696,8 @@ function bangunPertanyaanForm_(form, log) {
     const adaUnggah = coba_(function () {
       const foto = form.addFileUploadItem()
         .setTitle(T.FOTO)
-        .setHelpText('Satu foto produk, sebaiknya mendatar atau persegi, maksimal 10 MB. ' +
-                     'Kamu perlu masuk dengan akun Google untuk mengunggah.')
-        .setRequired(true);
+        .setHelpText(BANTUAN_FOTO())
+        .setRequired(CONFIG.FOTO_WAJIB);
       coba_(function () { foto.setAllowedFileTypes([FormApp.FileType.IMAGE]); });
       coba_(function () { foto.setMaxFiles(1); });
       coba_(function () { foto.setMaxFileSize(10 * 1024 * 1024); });
@@ -681,12 +706,15 @@ function bangunPertanyaanForm_(form, log) {
     if (!adaUnggah) {
       form.addTextItem()
         .setTitle(T.FOTO)
-        .setHelpText('Tempel tautan foto produkmu (Google Drive, Google Photos, atau URL gambar).')
-        .setRequired(true);
+        .setHelpText(BANTUAN_FOTO())
+        .setRequired(CONFIG.FOTO_WAJIB);
       log.push('CATATAN     : akun ini tidak mendukung pertanyaan unggah berkas — ' +
                'diganti menjadi isian tautan foto.');
     }
   }
+
+  // pertanyaan foto yang sudah ada ikut disesuaikan setiap setup dijalankan
+  perbaruiPertanyaanFoto_(form, log);
 
   /* 13. Persetujuan */
   if (belumAda(T.PERSETUJUAN)) {
@@ -698,6 +726,47 @@ function bangunPertanyaanForm_(form, log) {
 
   log.push('Pertanyaan  : ' + (baru.length ? 'ditambahkan -> ' + baru.join(', ')
                                            : 'sudah lengkap, tidak ada yang diubah'));
+}
+
+
+/** Teks bantuan pertanyaan foto, mengikuti pengaturan CONFIG. */
+function BANTUAN_FOTO() {
+  if (CONFIG.FOTO_WAJIB) {
+    return 'Satu foto produk, sebaiknya mendatar atau persegi, di bawah ' +
+           CONFIG.MAKS_FOTO_MB + ' MB. Foto yang lebih besar akan dikecilkan otomatis.';
+  }
+  return 'Boleh dikosongkan. Kalau tidak mengunggah foto, produkmu tetap tampil rapi ' +
+         'di website memakai ilustrasi sesuai kategori yang kamu pilih. ' +
+         'Kalau mau mengunggah, satu foto saja, sebaiknya mendatar atau persegi dan ' +
+         'di bawah ' + CONFIG.MAKS_FOTO_MB + ' MB — yang lebih besar dikecilkan otomatis.';
+}
+
+
+/**
+ * Menyesuaikan pertanyaan "Foto Produk" yang SUDAH ada di Form: wajib/tidaknya dan
+ * teks bantuannya. Perlu karena pertanyaan yang sudah ada tidak dibuat ulang oleh
+ * bangunPertanyaanForm_(), termasuk pertanyaan unggah berkas yang kamu tambahkan manual.
+ */
+function perbaruiPertanyaanFoto_(form, log) {
+  const items = form.getItems();
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].getTitle() !== CONFIG.T.FOTO) continue;
+
+    const tipe = items[i].getType();
+    let item = null;
+    if (tipe === FormApp.ItemType.FILE_UPLOAD) item = items[i].asFileUploadItem();
+    else if (tipe === FormApp.ItemType.TEXT) item = items[i].asTextItem();
+    else if (tipe === FormApp.ItemType.PARAGRAPH_TEXT) item = items[i].asParagraphTextItem();
+    if (!item) return;
+
+    coba_(function () { item.setRequired(CONFIG.FOTO_WAJIB); });
+    coba_(function () { item.setHelpText(BANTUAN_FOTO()); });
+    if (log) {
+      log.push('Foto        : ' + (CONFIG.FOTO_WAJIB ? 'wajib diisi'
+        : 'opsional — produk tanpa foto memakai ilustrasi kategori'));
+    }
+    return;
+  }
 }
 
 
@@ -828,6 +897,10 @@ function onFormSubmit(e) {
     bersihkanCache();
     Logger.log('Kiriman baru: %s (%s) dari %s -> MENUNGGU', idProduk, v(T.NAMA_PRODUK), namaUsaha);
 
+    // tutup pendaftaran begitu kuota tercapai
+    const kuota = perbaruiStatusPendaftaran_();
+    if (kuota) Logger.log('Kuota terpakai: %s dari %s', kuota.terpakai, kuota.kuota);
+
   } catch (err) {
     Logger.log('onFormSubmit GAGAL: ' + err + '\n' + (err.stack || ''));
   } finally {
@@ -858,6 +931,9 @@ function onEditSheet(e) {
         .setNumberFormat('yyyy-mm-dd');
     }
     bersihkanCache();
+
+    // menolak produk membebaskan kuota -> pendaftaran bisa terbuka lagi
+    perbaruiStatusPendaftaran_();
   } catch (err) {
     Logger.log('onEditSheet: ' + err);
   }
@@ -878,6 +954,11 @@ function onOpenSpreadsheet(e) {
       { name: 'Isi ID yang masih kosong',    functionName: 'isiIdKosong' },
       { name: 'Perbaiki izin & URL foto',    functionName: 'perbaikiIzinFoto' },
       { name: 'Uji foto dapat diakses publik', functionName: 'ujiFotoPublik' },
+      null,
+      { name: 'Cek sisa kuota produk',       functionName: 'cekKuota' },
+      { name: 'Buka pendaftaran',            functionName: 'bukaPendaftaran' },
+      { name: 'Tutup pendaftaran',           functionName: 'tutupPendaftaran' },
+      { name: 'Hapus foto produk DITOLAK',   functionName: 'hapusFotoDitolak' },
       null,
       { name: 'Bersihkan cache API',         functionName: 'bersihkanCache' },
       { name: 'Lihat info setup',            functionName: 'showSetupInfo' }
@@ -1142,18 +1223,92 @@ function amankanFoto_(urlMentah) {
   const pertama = String(urlMentah || '').split(',')[0].trim();
   if (!pertama) return { url: '', catatan: '' };
 
-  const id = ekstrakIdDrive_(pertama);
+  let id = ekstrakIdDrive_(pertama);
   if (!id) return { url: pertama, catatan: '' };      // sudah berupa URL gambar biasa
 
-  let catatan = '';
+  const catatan = [];
+
+  // 1. beri izin baca publik pada BERKAS ITU SAJA (bukan seluruh folder)
   try {
     DriveApp.getFileById(id).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   } catch (err) {
-    catatan = 'FOTO: izin publik gagal dipasang (' + err + '). ' +
-              'Ganti kolom FOTO dengan URL gambar publik lain agar tampil di website.';
-    Logger.log(catatan);
+    catatan.push('FOTO: izin publik gagal dipasang (' + err + '). ' +
+                 'Ganti kolom FOTO dengan URL gambar publik lain agar tampil di website.');
   }
-  return { url: urlThumbnail_(id), catatan: catatan };
+
+  // 2. tegakkan batas ukuran
+  const hasil = kecilkanFoto_(id);
+  id = hasil.id;
+  if (hasil.catatan) catatan.push(hasil.catatan);
+
+  return { url: urlThumbnail_(id), catatan: catatan.join(' | ') };
+}
+
+
+/**
+ * Menjaga setiap foto produk tidak melebihi CONFIG.MAKS_FOTO_MB.
+ *
+ * Foto dari kamera ponsel biasanya 2–5 MB, padahal website hanya menampilkannya
+ * selebar 1200 px. Foto yang kelewat besar diambil ulang lewat layanan thumbnail
+ * Drive (menghasilkan JPEG ~100–300 KB), disimpan sebagai berkas baru, lalu aslinya
+ * dipindahkan ke Sampah. Seratus produk jadi hanya memakai sekitar 25 MB.
+ *
+ * Kalau pengecilan gagal — misalnya format HEIC atau izin berbagi ditolak kebijakan
+ * domain — berkas asli dibiarkan utuh dan peringatannya ditulis ke CATATAN_ADMIN.
+ */
+function kecilkanFoto_(fileId) {
+  const batas = CONFIG.MAKS_FOTO_MB * 1024 * 1024;
+  let file, ukuran;
+
+  try {
+    file = DriveApp.getFileById(fileId);
+    ukuran = file.getSize();
+  } catch (err) {
+    return { id: fileId, catatan: 'FOTO: berkas tidak terbaca (' + err + ').' };
+  }
+
+  if (ukuran <= batas) return { id: fileId, catatan: '' };
+
+  const mb = Math.round(ukuran / 1024 / 1024 * 10) / 10;
+
+  try {
+    const res = UrlFetchApp.fetch(
+      'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w' + CONFIG.LEBAR_SIMPAN,
+      { muteHttpExceptions: true, followRedirects: true }
+    );
+    const kepala = res.getAllHeaders();
+    const tipe = String(kepala['Content-Type'] || kepala['content-type'] || '');
+    if (res.getResponseCode() !== 200 || tipe.indexOf('image') !== 0) {
+      throw new Error('HTTP ' + res.getResponseCode() + ' tipe "' + tipe + '"');
+    }
+
+    const nama = file.getName().replace(/\.[^.]+$/, '') + '-web.jpg';
+    const blob = res.getBlob().setName(nama);
+
+    const induk = file.getParents();
+    const folder = induk.hasNext() ? induk.next() : DriveApp.getRootFolder();
+    const baru = folder.createFile(blob);
+    coba_(function () {
+      baru.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    });
+
+    if (CONFIG.HAPUS_ASLI_SETELAH_DIKECILKAN) coba_(function () { file.setTrashed(true); });
+
+    const mbBaru = Math.round(baru.getSize() / 1024 / 1024 * 100) / 100;
+    return {
+      id: baru.getId(),
+      catatan: 'FOTO: ' + mb + ' MB melebihi batas ' + CONFIG.MAKS_FOTO_MB +
+               ' MB, dikecilkan otomatis menjadi ' + mbBaru + ' MB.'
+    };
+
+  } catch (err) {
+    return {
+      id: fileId,
+      catatan: 'FOTO: ' + mb + ' MB melebihi batas ' + CONFIG.MAKS_FOTO_MB +
+               ' MB dan gagal dikecilkan (' + err + '). Minta mahasiswa mengunggah ulang ' +
+               'foto yang lebih kecil, atau ganti kolom FOTO dengan URL gambar lain.'
+    };
+  }
 }
 
 
@@ -1380,6 +1535,154 @@ function isiIdKosong() {
   }
   bersihkanCache();
   Logger.log('%s ID produk dibuat.', dibuat);
+}
+
+
+/* ====================================================================================
+ * KUOTA PRODUK
+ * ==================================================================================== */
+
+/** Menghitung berapa produk yang sedang memakai kuota (semua kecuali DITOLAK). */
+function hitungKuota_(ss) {
+  const sheet = ss.getSheetByName(CONFIG.SHEET_PRODUK);
+  const kosong = { terpakai: 0, sisa: CONFIG.KUOTA_PRODUK, penuh: false, kuota: CONFIG.KUOTA_PRODUK };
+  if (!sheet || sheet.getLastRow() < 2) return kosong;
+
+  const kol = petaKolom_(sheet);
+  if (!kol.NAMA_PRODUK) return kosong;
+
+  const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).getValues();
+  let n = 0;
+  data.forEach(function (r) {
+    const nama = String(r[kol.NAMA_PRODUK - 1] || '').trim();
+    const st = kol.STATUS ? String(r[kol.STATUS - 1] || '').toUpperCase() : '';
+    if (nama && st !== 'DITOLAK') n++;
+  });
+
+  return {
+    terpakai: n,
+    sisa: Math.max(0, CONFIG.KUOTA_PRODUK - n),
+    penuh: n >= CONFIG.KUOTA_PRODUK,
+    kuota: CONFIG.KUOTA_PRODUK
+  };
+}
+
+
+/**
+ * Menutup Google Form saat kuota penuh, dan membukanya lagi saat kuota longgar.
+ * Form yang ditutup admin secara manual TIDAK ikut dibuka — script hanya membuka
+ * kembali yang ditutupnya sendiri.
+ */
+function perbaruiStatusPendaftaran_() {
+  const props = PropertiesService.getScriptProperties();
+  const formId = props.getProperty(PROP.FORM_ID);
+  if (!formId) return null;
+
+  const kuota = hitungKuota_(spreadsheetAktif_());
+
+  try {
+    const form = FormApp.openById(formId);
+    const menerima = form.isAcceptingResponses();
+
+    if (kuota.penuh && menerima) {
+      form.setCustomClosedMessage(CONFIG.PESAN_KUOTA_PENUH);
+      form.setAcceptingResponses(false);
+      props.setProperty(PROP.TUTUP_OTOMATIS, '1');
+      Logger.log('Kuota penuh (%s/%s) — pendaftaran ditutup otomatis.', kuota.terpakai, kuota.kuota);
+
+    } else if (!kuota.penuh && !menerima && props.getProperty(PROP.TUTUP_OTOMATIS) === '1') {
+      form.setAcceptingResponses(true);
+      props.deleteProperty(PROP.TUTUP_OTOMATIS);
+      Logger.log('Kuota longgar lagi (%s/%s) — pendaftaran dibuka otomatis.', kuota.terpakai, kuota.kuota);
+    }
+  } catch (err) {
+    Logger.log('perbaruiStatusPendaftaran_: ' + err);
+  }
+  return kuota;
+}
+
+
+/** Melihat sisa kuota dan keadaan pendaftaran. */
+function cekKuota() {
+  const kuota = hitungKuota_(spreadsheetAktif_());
+  const props = PropertiesService.getScriptProperties();
+  const out = ['=== KUOTA PRODUK ==='];
+
+  out.push('Terpakai       : ' + kuota.terpakai + ' dari ' + kuota.kuota);
+  out.push('Sisa           : ' + kuota.sisa);
+  out.push('Batas foto     : ' + CONFIG.MAKS_FOTO_MB + ' MB per produk');
+  out.push('Perkiraan Drive: sekitar ' + Math.round(kuota.terpakai * 0.25) + ' MB terpakai foto');
+
+  try {
+    const form = FormApp.openById(props.getProperty(PROP.FORM_ID));
+    out.push('Pendaftaran    : ' + (form.isAcceptingResponses() ? 'TERBUKA' : 'DITUTUP') +
+             (props.getProperty(PROP.TUTUP_OTOMATIS) === '1' ? ' (ditutup otomatis oleh kuota)' : ''));
+  } catch (err) {
+    out.push('Pendaftaran    : tidak dapat diperiksa (' + err + ')');
+  }
+
+  const teks = out.join('\n');
+  Logger.log(teks);
+  return teks;
+}
+
+
+/** Menutup pendaftaran secara manual (misalnya di luar masa pendaftaran). */
+function tutupPendaftaran() {
+  const props = PropertiesService.getScriptProperties();
+  const form = FormApp.openById(props.getProperty(PROP.FORM_ID));
+  form.setCustomClosedMessage(CONFIG.PESAN_KUOTA_PENUH);
+  form.setAcceptingResponses(false);
+  props.deleteProperty(PROP.TUTUP_OTOMATIS);   // ditutup admin, bukan oleh kuota
+  Logger.log('Pendaftaran ditutup manual. Buka lagi dengan bukaPendaftaran().');
+}
+
+
+/** Membuka kembali pendaftaran, selama kuota masih ada. */
+function bukaPendaftaran() {
+  const props = PropertiesService.getScriptProperties();
+  const kuota = hitungKuota_(spreadsheetAktif_());
+  if (kuota.penuh) {
+    Logger.log('Kuota masih penuh (%s/%s). Tolak atau hapus produk dulu.', kuota.terpakai, kuota.kuota);
+    return;
+  }
+  FormApp.openById(props.getProperty(PROP.FORM_ID)).setAcceptingResponses(true);
+  props.deleteProperty(PROP.TUTUP_OTOMATIS);
+  Logger.log('Pendaftaran dibuka. Sisa kuota: %s produk.', kuota.sisa);
+}
+
+
+/**
+ * Memindahkan foto milik produk berstatus DITOLAK ke Sampah Drive.
+ * Sengaja dibuat manual, bukan otomatis saat menolak, supaya tidak ada foto yang
+ * hilang karena salah klik. Berkas di Sampah masih bisa dipulihkan selama 30 hari.
+ */
+function hapusFotoDitolak() {
+  const ss = spreadsheetAktif_();
+  const sheet = ss.getSheetByName(CONFIG.SHEET_PRODUK);
+  if (!sheet || sheet.getLastRow() < 2) { Logger.log('Belum ada data.'); return; }
+
+  const kol = petaKolom_(sheet);
+  if (!kol.STATUS || !kol.FOTO) { Logger.log('Kolom STATUS atau FOTO tidak ditemukan.'); return; }
+
+  const n = sheet.getLastRow() - 1;
+  const data = sheet.getRange(2, 1, n, sheet.getLastColumn()).getValues();
+  let dihapus = 0, gagal = 0;
+
+  for (let i = 0; i < data.length; i++) {
+    if (String(data[i][kol.STATUS - 1] || '').toUpperCase() !== 'DITOLAK') continue;
+    const id = ekstrakIdDrive_(String(data[i][kol.FOTO - 1] || ''));
+    if (!id) continue;
+    try {
+      DriveApp.getFileById(id).setTrashed(true);
+      sheet.getRange(i + 2, kol.FOTO).setValue('');
+      dihapus++;
+    } catch (err) {
+      gagal++;
+    }
+  }
+  bersihkanCache();
+  Logger.log('%s foto produk DITOLAK dipindahkan ke Sampah, %s gagal.', dihapus, gagal);
 }
 
 
