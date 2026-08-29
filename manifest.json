@@ -1,0 +1,45 @@
+{
+  "name": "Pojok Wirausaha Mahasiswa PGSD UPI Kampus Serang",
+  "short_name": "Keranjang PGSD",
+  "description": "Etalase digital produk dan jasa karya mahasiswa PGSD UPI Kampus Serang. Karya Mahasiswa, Belanja Mahasiswa, Tumbuh Bersama.",
+  "lang": "id",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FFF8F3",
+  "theme_color": "#C42A45",
+  "categories": ["shopping", "education", "business"],
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Katalog Produk",
+      "short_name": "Produk",
+      "url": "./#produk"
+    },
+    {
+      "name": "Daftarkan Usaha",
+      "short_name": "Daftar",
+      "url": "./#daftar"
+    }
+  ]
+}

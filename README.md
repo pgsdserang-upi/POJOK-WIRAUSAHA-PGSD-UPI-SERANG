@@ -27,6 +27,7 @@ siap di-host di GitHub Pages.
 11. [Kustomisasi](#11-kustomisasi)
 12. [Fitur yang sudah tersedia](#12-fitur-yang-sudah-tersedia)
 13. [Pemecahan masalah](#13-pemecahan-masalah)
+14. [Memasang di layar utama HP](#14-memasang-di-layar-utama-hp)
 
 ---
 
@@ -36,6 +37,8 @@ siap di-host di GitHub Pages.
 /
 ├── index.html              Halaman utama (hero, katalog, promo, cerita, CTA)
 ├── toko.html               Halaman toko mini per mahasiswa (?id=PGSD0001)
+├── manifest.json           Identitas aplikasi: nama pintasan, ikon, warna
+├── sw.js                   Service worker: syarat WebAPK + situs tetap terbuka offline
 ├── .nojekyll               Wajib ada agar GitHub Pages tidak memproses file lewat Jekyll
 ├── README.md
 │
@@ -49,7 +52,8 @@ siap di-host di GitHub Pages.
 │   ├── favorites.js        Favorit & "Terakhir Kamu Lihat" (localStorage)
 │   ├── products.js         Komponen: kartu produk, skeleton, modal detail, share
 │   ├── app.js              Pengendali halaman utama
-│   └── toko.js             Pengendali halaman toko
+│   ├── toko.js             Pengendali halaman toko
+│   └── pwa.js              Mendaftarkan service worker
 │
 ├── assets/
 │   ├── icons/              logo.svg, favicon.svg
@@ -624,6 +628,61 @@ Bila foto gagal dimuat, kartu otomatis jatuh ke `assets/images/placeholder.svg`.
 | Tombol WhatsApp tidak terbuka | Kolom WhatsApp kosong. Isi `08…` atau `62…`, format bebas |
 | Halaman putih di GitHub Pages | Nama folder `css`/`js`/`assets` berubah, atau file diunggah dalam satu folder induk. Pastikan `index.html` berada di root repository |
 | Buka `index.html` langsung lalu kosong | Protokol `file://` memblokir `fetch`. Jalankan lewat server lokal (bagian 2) |
+
+---
+
+## 14. Memasang di layar utama HP
+
+Website ini adalah **PWA** (Progressive Web App), jadi bisa dipasang seperti aplikasi.
+
+### Cara memasang (Android/Chrome)
+
+Buka situs → menu **⋮** → **Install app** / **Pasang aplikasi**. Kalau yang muncul masih
+"Add to Home screen", tunggu beberapa detik lalu buka menunya lagi — Chrome perlu waktu
+sebentar untuk membaca `manifest.json` dan mendaftarkan service worker.
+
+Hasilnya: ikon di layar utama **tanpa lencana Chrome**, dengan nama **Keranjang PGSD**,
+dan saat dibuka tampil layar penuh tanpa bilah alamat.
+
+### Kenapa lencana Chrome bisa muncul
+
+Chrome memberi lencana kalau situs hanya bisa dijadikan *pintasan*, bukan *aplikasi*.
+Agar bisa dipasang sebagai aplikasi (WebAPK), lima syarat ini harus terpenuhi sekaligus —
+dan semuanya sudah ada di repo ini:
+
+| Syarat | Berkas |
+|---|---|
+| HTTPS | otomatis dari GitHub Pages |
+| `manifest.json` tertaut di `<head>` | `index.html`, `toko.html` |
+| `display: standalone` + `short_name` | `manifest.json` |
+| Ikon PNG 192px dan 512px + satu maskable | `assets/icons/icon-*.png` |
+| Service worker dengan penangan `fetch` | `sw.js`, didaftarkan `js/pwa.js` |
+
+### Mengganti nama pintasan
+
+Ubah `short_name` di `manifest.json` — itulah nama yang dipakai peluncur Android.
+`name` (nama panjang) dipakai di layar pembuka dan daftar aplikasi.
+
+```json
+"name": "Pojok Wirausaha Mahasiswa PGSD UPI Kampus Serang",
+"short_name": "Keranjang PGSD",
+```
+
+Android menyimpan nama dan ikon saat pemasangan. Setelah mengubahnya, **hapus pintasan
+lama lalu pasang ulang** — mengubah manifest saja tidak memperbarui ikon yang sudah
+terpasang.
+
+### Kalau situs diperbarui
+
+Naikkan angka `VERSI` di baris atas `sw.js` setiap kali kamu mengubah HTML/CSS/JS:
+
+```js
+const VERSI = 'pojok-wirausaha-v2';
+```
+
+Tanpa itu, pengunjung lama bisa tetap melihat tampilan versi tersimpan. Dua hal yang
+**tidak pernah** disimpan dan selalu diambil segar: data produk dari Apps Script, dan
+`js/config.js` — supaya penggantian `API_URL` langsung berlaku.
 
 ---
 
