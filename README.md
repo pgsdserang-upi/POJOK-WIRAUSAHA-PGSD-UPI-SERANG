@@ -440,6 +440,48 @@ sendiri, termasuk teks bantuannya.
 > bagian dari latihannya — jadi pertimbangkan tetap mendorong mahasiswa mengunggah foto,
 > meski tidak diwajibkan sistem.
 
+### Kalau mahasiswa menempelkan tautan Google Drive
+
+Pertanyaan foto di Form berupa isian tautan. Mahasiswa menempelkan tautan Drive dalam
+bentuk apa pun — `/file/d/ID/view?usp=sharing`, `open?id=ID`, `uc?export=view&id=ID` —
+dan semuanya diubah otomatis menjadi bentuk yang bisa dipakai tag `<img>`:
+
+```
+https://drive.google.com/thumbnail?id=ID&sz=w1200
+```
+
+Perubahan itu dilakukan **dua kali**: di Apps Script saat kiriman masuk, dan sekali lagi di
+`js/api.js` saat halaman dirender. Jadi tautan yang diketik admin langsung di Sheet pun
+tetap tampil, tanpa perlu men-deploy ulang Apps Script.
+
+**Satu syarat yang harus dipenuhi mahasiswa.** Berkas di Drive mereka bersifat privat
+secara bawaan, dan script kamu tidak punya wewenang mengubah izin berkas milik orang lain.
+Jadi mereka sendiri yang harus membagikannya: klik kanan foto di Google Drive → **Bagikan**
+→ bagian *Akses umum* ubah menjadi **"Siapa saja yang memiliki link"** → **Pelihat**.
+Petunjuk ini sudah tertulis di teks bantuan pertanyaan Form.
+
+Kalau syarat itu terlewat, tidak ada yang rusak: Apps Script memeriksa keterbacaan tautan
+secara anonim saat kiriman masuk dan menulis peringatan di kolom `CATATAN_ADMIN`, misalnya
+
+> FOTO: belum bisa dilihat publik (HTTP 403). Website akan menampilkan ilustrasi kategori
+> sebagai gantinya. Foto ini ada di Drive mahasiswa, jadi izinnya hanya bisa diubah oleh
+> mereka: klik kanan berkas > Bagikan > Umum > "Siapa saja yang memiliki link" > Pelihat.
+
+Tautan **Google Photos** tidak bisa dipakai sama sekali — layanan itu tidak menyediakan URL
+gambar langsung. Script mendeteksinya dan menuliskan catatan yang menjelaskan hal ini.
+
+### Tiga keadaan gambar kartu produk
+
+| Keadaan | Yang tampil |
+|---|---|
+| Kolom `FOTO` berisi tautan yang bisa dibuka publik | Foto asli |
+| Kolom `FOTO` berisi tautan yang gagal dimuat (masih privat, berkas dihapus, salah tempel) | Ilustrasi kategori |
+| Kolom `FOTO` kosong | Ilustrasi kategori |
+
+Pergantian ke ilustrasi terjadi di browser pengunjung lewat `onerror`, jadi berlaku juga
+kalau izin berkas berubah setelah produk tayang. Tidak akan pernah ada kartu dengan gambar
+rusak atau kotak abu-abu kosong.
+
 ### Kalau mahasiswa mengunggah foto
 
 Google Form menyimpan unggahan ke Drive dalam keadaan **privat**, dan URL yang diberikannya

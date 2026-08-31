@@ -735,10 +735,14 @@ function BANTUAN_FOTO() {
     return 'Satu foto produk, sebaiknya mendatar atau persegi, di bawah ' +
            CONFIG.MAKS_FOTO_MB + ' MB. Foto yang lebih besar akan dikecilkan otomatis.';
   }
-  return 'Boleh dikosongkan. Kalau tidak mengunggah foto, produkmu tetap tampil rapi ' +
-         'di website memakai ilustrasi sesuai kategori yang kamu pilih. ' +
-         'Kalau mau mengunggah, satu foto saja, sebaiknya mendatar atau persegi dan ' +
-         'di bawah ' + CONFIG.MAKS_FOTO_MB + ' MB — yang lebih besar dikecilkan otomatis.';
+  return 'Boleh dikosongkan — produkmu tetap tampil rapi memakai ilustrasi sesuai ' +
+         'kategori yang kamu pilih.\n\n' +
+         'Kalau mau memakai foto sendiri, tempel tautan Google Drive-nya di sini. ' +
+         'PENTING: fotonya harus dibagikan dulu, caranya di Google Drive klik kanan pada ' +
+         'foto > Bagikan > bagian "Akses umum" ubah menjadi "Siapa saja yang memiliki link" ' +
+         '> Pelihat. Tanpa langkah itu, fotomu tidak akan tampil di website.\n\n' +
+         'Ukuran sebaiknya di bawah ' + CONFIG.MAKS_FOTO_MB + ' MB. ' +
+         'Tautan Google Photos tidak bisa dipakai.';
 }
 
 
@@ -1223,25 +1227,81 @@ function amankanFoto_(urlMentah) {
   const pertama = String(urlMentah || '').split(',')[0].trim();
   if (!pertama) return { url: '', catatan: '' };
 
-  let id = ekstrakIdDrive_(pertama);
-  if (!id) return { url: pertama, catatan: '' };      // sudah berupa URL gambar biasa
-
   const catatan = [];
 
-  // 1. beri izin baca publik pada BERKAS ITU SAJA (bukan seluruh folder)
-  try {
-    DriveApp.getFileById(id).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-  } catch (err) {
-    catatan.push('FOTO: izin publik gagal dipasang (' + err + '). ' +
-                 'Ganti kolom FOTO dengan URL gambar publik lain agar tampil di website.');
+  // Google Photos tidak menyediakan URL gambar langsung — tidak bisa dipakai <img>
+  if (/photos\.(google|app\.goo)\./i.test(pertama)) {
+    return {
+      url: '',
+      catatan: 'FOTO: tautan Google Photos tidak bisa ditampilkan di website. ' +
+               'Minta mahasiswa mengunggah fotonya ke Google Drive, lalu bagikan ' +
+               'dengan izin "Siapa saja yang memiliki link".'
+    };
   }
 
-  // 2. tegakkan batas ukuran
-  const hasil = kecilkanFoto_(id);
-  id = hasil.id;
-  if (hasil.catatan) catatan.push(hasil.catatan);
+  let id = ekstrakIdDrive_(pertama);
 
-  return { url: urlThumbnail_(id), catatan: catatan.join(' | ') };
+  // Bukan tautan Drive: anggap URL gambar biasa, cukup diperiksa keterbacaannya
+  if (!id) {
+    const pesanLangsung = ujiAksesGambar_(pertama);
+    if (pesanLangsung) catatan.push(pesanLangsung);
+    return { url: pertama, catatan: catatan.join(' | ') };
+  }
+
+  /* Berkas milik sendiri (hasil unggah lewat Form) bisa kita atur izinnya dan
+     kita kecilkan. Berkas milik mahasiswa — yang tautannya mereka tempel sendiri —
+     tidak bisa disentuh script, jadi langkah itu dilewati tanpa dianggap error. */
+  let milikSendiri = false;
+  try {
+    const file = DriveApp.getFileById(id);
+    file.getName();                       // memastikan benar-benar bisa diakses
+    milikSendiri = true;
+  } catch (err) {
+    milikSendiri = false;
+  }
+
+  if (milikSendiri) {
+    coba_(function () {
+      DriveApp.getFileById(id).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    });
+    const hasil = kecilkanFoto_(id);      // tegakkan batas MAKS_FOTO_MB
+    id = hasil.id;
+    if (hasil.catatan) catatan.push(hasil.catatan);
+  }
+
+  const url = urlThumbnail_(id);
+
+  // Yang menentukan foto tampil atau tidak hanyalah satu hal: bisakah orang lain
+  // membukanya tanpa login. Diperiksa di sini supaya admin tahu sejak awal.
+  const pesan = ujiAksesGambar_(url);
+  if (pesan) {
+    catatan.push(pesan + (milikSendiri ? '' :
+      ' Foto ini ada di Drive mahasiswa, jadi izinnya hanya bisa diubah oleh mereka: ' +
+      'klik kanan berkas > Bagikan > Umum > "Siapa saja yang memiliki link" > Pelihat.'));
+  }
+
+  return { url: url, catatan: catatan.join(' | ') };
+}
+
+
+/**
+ * Memeriksa apakah sebuah URL gambar benar-benar bisa dibuka pengunjung anonim.
+ * UrlFetchApp memanggil tanpa kredensial, jadi hasilnya mewakili apa yang dilihat
+ * pengunjung website. Mengembalikan '' bila aman, atau pesan bila bermasalah.
+ */
+function ujiAksesGambar_(url) {
+  if (!url) return '';
+  try {
+    const res = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: true });
+    const kepala = res.getAllHeaders();
+    const tipe = String(kepala['Content-Type'] || kepala['content-type'] || '');
+    if (res.getResponseCode() === 200 && tipe.indexOf('image') === 0) return '';
+    return 'FOTO: belum bisa dilihat publik (HTTP ' + res.getResponseCode() +
+           ', tipe "' + tipe + '"). Website akan menampilkan ilustrasi kategori sebagai gantinya.';
+  } catch (err) {
+    return 'FOTO: gagal diperiksa (' + err + '). ' +
+           'Website akan menampilkan ilustrasi kategori bila foto tidak dapat dimuat.';
+  }
 }
 
 

@@ -41,12 +41,44 @@ PW.ui = (function () {
     return '<svg class="icon ' + (kelas || "") + '" aria-hidden="true"><use href="#i-' + nama + '"></use></svg>';
   }
 
-  function imgAman(src, alt, kelas, w, h, eager) {
+  /**
+   * @param art {key, kategori, rasio} — bila diisi, gambar yang gagal dimuat
+   *        (tautan Drive salah, berkas dihapus, izin masih privat) otomatis
+   *        diganti ilustrasi kategori, bukan gambar placeholder abu-abu.
+   */
+  function imgAman(src, alt, kelas, w, h, eager, art) {
+    var cadangan = art
+      ? ' data-art-key="' + U.esc(art.key || "") + '"' +
+        ' data-art-kat="' + U.esc(art.kategori || "Lainnya") + '"' +
+        ' data-art-rasio="' + (art.rasio || "lebar") + '"' +
+        ' onerror="PW.ui.fotoGagal(this)"'
+      : ' onerror="this.onerror=null;this.src=\'' + C.PLACEHOLDER + '\'"';
+
     return '<img class="' + (kelas || "") + '" src="' + U.esc(src || C.PLACEHOLDER) + '"' +
       ' alt="' + U.esc(alt || "") + '"' +
       (w ? ' width="' + w + '"' : "") + (h ? ' height="' + h + '"' : "") +
       ' loading="' + (eager ? "eager" : "lazy") + '" decoding="async"' +
-      ' onerror="this.onerror=null;this.src=\'' + C.PLACEHOLDER + '\'">';
+      cadangan + '>';
+  }
+
+  /** Dipanggil oleh atribut onerror gambar produk/usaha. */
+  function fotoGagal(img) {
+    try {
+      img.onerror = null;
+      var html = artKategori(
+        {
+          id: img.getAttribute("data-art-key") || img.getAttribute("alt") || "",
+          nama: img.getAttribute("alt") || "",
+          kategori: img.getAttribute("data-art-kat") || "Lainnya"
+        },
+        img.className || "",
+        img.getAttribute("data-art-rasio") || "lebar"
+      );
+      if (img.parentNode) img.outerHTML = html;
+    } catch (e) {
+      img.onerror = null;
+      img.src = C.PLACEHOLDER;
+    }
   }
 
   /* ======================================================================
@@ -109,18 +141,31 @@ PW.ui = (function () {
       '</svg>';
   }
 
-  /** Gambar kartu: foto asli kalau ada, kalau tidak ilustrasi kategori. */
+  /**
+   * Gambar kartu produk. Tiga keadaan:
+   *   ada foto & bisa dimuat  -> foto asli
+   *   ada foto tapi gagal     -> ilustrasi kategori (lewat onerror)
+   *   tidak ada foto          -> ilustrasi kategori
+   */
   function gambarProduk(p, kelas, w, h, eager) {
-    if (p.foto) return imgAman(p.foto, p.nama, kelas, w, h, eager);
-    return artKategori(p, kelas, w === h ? 'persegi' : 'lebar');
+    var rasio = w === h ? 'persegi' : 'lebar';
+    if (p.foto) {
+      return imgAman(p.foto, p.nama, kelas, w, h, eager,
+        { key: p.id, kategori: p.kategori, rasio: rasio });
+    }
+    return artKategori(p, kelas, rasio);
   }
 
   /** Sama untuk usaha: logo kalau ada, kalau tidak ilustrasi kategori utamanya. */
   function gambarPenjual(s, kelas, w, h, eager) {
-    if (s.logo) return imgAman(s.logo, 'Logo ' + s.namaUsaha, kelas, w, h, eager);
+    var rasio = w === h ? 'persegi' : 'lebar';
+    if (s.logo) {
+      return imgAman(s.logo, 'Logo ' + s.namaUsaha, kelas, w, h, eager,
+        { key: s.id, kategori: s.kategori || 'Lainnya', rasio: rasio });
+    }
     return artKategori(
       { id: s.id, nama: s.namaUsaha, kategori: s.kategori || 'Lainnya', kategoriMeta: s.kategoriMeta },
-      kelas, w === h ? 'persegi' : 'lebar'
+      kelas, rasio
     );
   }
 
@@ -605,7 +650,7 @@ PW.ui = (function () {
   }
 
   return {
-    toast: toast, ikon: ikon, imgAman: imgAman,
+    toast: toast, ikon: ikon, imgAman: imgAman, fotoGagal: fotoGagal,
     kartuProduk: kartuProduk, daftarProduk: daftarProduk, skeleton: skeleton,
     artKategori: artKategori, gambarProduk: gambarProduk, gambarPenjual: gambarPenjual,
     kartuRail: kartuRail, kartuPenjual: kartuPenjual, sorotanPenjual: sorotanPenjual,

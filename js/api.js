@@ -64,6 +64,42 @@ PW.util = (function () {
     return u ? "https://instagram.com/" + encodeURIComponent(u) : "";
   }
 
+  /* -- tautan gambar -----------------------------------------------------
+     Mahasiswa menempelkan tautan Google Drive dalam bentuk apa pun:
+       https://drive.google.com/file/d/ID/view?usp=sharing
+       https://drive.google.com/open?id=ID
+       https://drive.google.com/uc?export=view&id=ID
+       https://drive.google.com/drive/folders/... (bukan berkas)
+     Tidak satu pun bentuk di atas bisa dipakai langsung oleh tag <img>.
+     Semuanya diubah ke bentuk thumbnail yang memang melayani gambar.
+
+     Normalisasi ini juga sudah dilakukan Apps Script. Diulang di sini supaya
+     tautan yang diketik admin langsung di Sheet tetap tampil, tanpa perlu
+     men-deploy ulang Apps Script.
+  ----------------------------------------------------------------------- */
+  function idDrive(url) {
+    var s = String(url || "");
+    var pola = [
+      /[?&]id=([a-zA-Z0-9_-]{20,})/,
+      /\/file\/d\/([a-zA-Z0-9_-]{20,})/,
+      /\/d\/([a-zA-Z0-9_-]{20,})/,
+      /googleusercontent\.com\/d\/([a-zA-Z0-9_-]{20,})/
+    ];
+    for (var i = 0; i < pola.length; i++) {
+      var m = s.match(pola[i]);
+      if (m) return m[1];
+    }
+    return "";
+  }
+
+  function urlGambar(url) {
+    var s = String(url || "").trim();
+    if (!s) return "";
+    if (s.indexOf("drive.google.com/thumbnail") > -1) return s;   // sudah benar
+    var id = idDrive(s);
+    return id ? "https://drive.google.com/thumbnail?id=" + id + "&sz=w1200" : s;
+  }
+
   /* -- tautan WhatsApp dengan pesan otomatis ----------------------------- */
   function waLink(nomor, pesan) {
     var wa = normalizeWa(nomor);
@@ -167,7 +203,7 @@ PW.util = (function () {
   return {
     rupiah: rupiah, parseHarga: parseHarga,
     normalizeWa: normalizeWa, normalizeIg: normalizeIg, igLink: igLink,
-    waLink: waLink, isiTemplate: isiTemplate,
+    waLink: waLink, isiTemplate: isiTemplate, urlGambar: urlGambar, idDrive: idDrive,
     parseDate: parseDate, hariSejak: hariSejak, tanggalID: tanggalID, tanggalPendek: tanggalPendek,
     esc: esc, slug: slug, potong: potong, isTrue: isTrue,
     getParam: getParam, urlProduk: urlProduk, urlToko: urlToko, acak: acak
@@ -217,7 +253,7 @@ PW.normalize = (function () {
       kategoriMeta: kat,
       harga: U.parseHarga(pick(row, ["harga", "Harga"], null)),
       deskripsi: String(pick(row, ["deskripsi", "Deskripsi", "Deskripsi Produk"], "")).trim(),
-      foto: String(pick(row, ["foto", "Foto", "Foto Produk", "gambar"], "")).trim(),
+      foto: U.urlGambar(pick(row, ["foto", "Foto", "Foto Produk", "gambar"], "")),
       whatsapp: U.normalizeWa(pick(row, ["whatsapp", "WhatsApp", "wa", "No WhatsApp"], "")),
       instagram: U.normalizeIg(pick(row, ["instagram", "Instagram", "ig"], "")),
       lokasi: String(pick(row, ["lokasi", "Lokasi", "Lokasi COD"], "")).trim(),
@@ -247,7 +283,7 @@ PW.normalize = (function () {
       angkatan: String(pick(row, ["angkatan", "Angkatan"], "")).trim(),
       namaUsaha: String(pick(row, ["namaUsaha", "Nama Usaha"], "")).trim(),
       deskripsi: String(pick(row, ["deskripsiUsaha", "Deskripsi Usaha", "deskripsi"], "")).trim(),
-      logo: String(pick(row, ["logo", "Logo"], "")).trim(),
+      logo: U.urlGambar(pick(row, ["logo", "Logo"], "")),
       whatsapp: U.normalizeWa(pick(row, ["whatsapp", "WhatsApp", "wa"], "")),
       instagram: U.normalizeIg(pick(row, ["instagram", "Instagram", "ig"], "")),
       lokasi: String(pick(row, ["lokasi", "Lokasi", "Lokasi COD"], "")).trim(),
@@ -277,7 +313,7 @@ PW.normalize = (function () {
       excerpt: String(pick(row, ["excerpt", "Excerpt", "ringkasan"], "")).trim(),
       penulis: String(pick(row, ["penulis", "Penulis", "namaMahasiswa"], "")).trim(),
       angkatan: String(pick(row, ["angkatan", "Angkatan"], "")).trim(),
-      thumbnail: String(pick(row, ["thumbnail", "Thumbnail", "foto"], "")).trim() || PW.config.PLACEHOLDER,
+      thumbnail: U.urlGambar(pick(row, ["thumbnail", "Thumbnail", "foto"], "")) || PW.config.PLACEHOLDER,
       tanggal: pick(row, ["tanggal", "Tanggal"], ""),
       isi: String(pick(row, ["isi", "Isi", "konten"], "")).trim()
     };
